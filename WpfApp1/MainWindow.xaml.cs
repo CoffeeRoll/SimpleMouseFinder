@@ -1,7 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 
 namespace WpfApp1
@@ -14,6 +17,16 @@ namespace WpfApp1
         private IList<ColorOption> colors;
         private Overlay overlay;
         private bool isShowing = false;
+
+        public const int WS_EX_TRANSPARENT = 0x00000020;
+        public const int GWL_EXSTYLE = (-20);
+
+
+        [DllImport("user32.dll")]
+        public static extern int GetWindowLong(IntPtr hwnd, int index);
+
+        [DllImport("user32.dll")]
+        public static extern int SetWindowLong(IntPtr hwnd, int index, int newStyle);
 
         public MainWindow()
         {
@@ -65,6 +78,13 @@ namespace WpfApp1
 
                 overlay = new Overlay(props);
                 overlay.Show();
+
+                // Disable all user interaction with the window to prevent it from stealing focus
+                // Setting Focusable = False in the overlay xaml doesn't have the same effect
+                var hwnd = new WindowInteropHelper(overlay).Handle;
+                int extendedStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
+                _ = SetWindowLong(hwnd, GWL_EXSTYLE, extendedStyle | WS_EX_TRANSPARENT);
+
                 bStartStop.Content = "Stop";
             }
 

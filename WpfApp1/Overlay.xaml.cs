@@ -31,7 +31,7 @@ namespace WpfApp1
         {
             this.props = props;
             InitializeComponent();
-
+            
             SetupElipses();
 
             System.Windows.Threading.DispatcherTimer dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
